@@ -487,6 +487,37 @@ FP.TimestampTransform = FP.Transform.extend({
 
 (function() {
 
+FP.ArrayTransform = FP.Transform.extend({
+  serialize: function(array, options, container) {
+    return transformArray("serialize", array, options, container);
+  },
+
+  deserialize: function(array, options, container) {
+    return transformArray("deserialize", array, options, container);
+  }
+});
+
+function transformArray(direction, array, options, container) {
+  if (!array) {
+    return null;
+  }
+
+  if (!options || !options.of) {
+    return array;
+  }
+
+  var transform = container.lookup('transform:'+options.of);
+
+  return array.map(function (value) {
+    return transform[direction](value, options, container);
+  });
+}
+
+
+})();
+
+(function() {
+
 var get        = Ember.get,
     deserialize= FP.Transform.deserialize,
     isNone     = Ember.isNone;
@@ -2431,6 +2462,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.register('transform:number',    FP.NumberTransform);
       application.register('transform:hash',      FP.HashTransform);
       application.register('transform:string',    FP.StringTransform);
+      application.register('transform:array',     FP.ArrayTransform);
     }
   });
 
